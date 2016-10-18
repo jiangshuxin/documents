@@ -73,7 +73,14 @@
 
 ## 2 分布式锁  
 公司分布锁基于zk开发的，所以需要配置zk连接信息；具体步骤如下：  
-1. ```pom.xml```中引入```locks-1.0.1.jar```
+1. ```pom.xml```中引入
+```
+    <dependency>
+        <groupId>com.handpay</groupId>
+        <artifactId>locks</artifactId>
+        <version>1.0.1</version>
+    </dependency>
+```
 2. 在```properties```中添加```zk```服务器配置信息
   ```
   locks.zookeeper.connectServer=zookeeper1:2181,zookeeper2:2182,zookeeper3:2183
@@ -111,6 +118,75 @@
 
 ## 4 消息
 ### 4.1 HornetQ
+#### 4.1.1 依赖声明
+```
+    <dependency>
+        <groupId>com.handpay</groupId>
+        <artifactId>core-common</artifactId>
+        <version>1.0.0</version>
+        <scope>compile</scope>
+    </dependency>
+    <dependency>
+        <groupId>com.handpay</groupId>
+        <artifactId>core-interface</artifactId>
+        <version>1.0.0</version>
+        <scope>compile</scope>
+    </dependency>
+    <dependency>
+        <groupId>org.hornetq</groupId>
+        <artifactId>hornetq-core-client</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>org.hornetq</groupId>
+        <artifactId>hornetq-jms-client</artifactId>
+    </dependency>
+```
+如需指定版本则使用```<version>2.2.5.FINAL</version>```
+#### 4.4.2 配置文件说明
+由于基于Spring-JMS开发,请严格按照**原生ConnectionFactory**->**缓存ConnectionFactory**->**JmsTemplate**三部曲进行配置。
+```
+<bean name="mq.targetConnectionFactory"
+		  class="com.handpay.core.common.spring.hornetq.DirectHornetQCFFactoryBean">
+		<property name="address" value="${hornetq.server.address}"></property>
+		<property name="params">
+			<map>
+				<entry key="hornetq.client.retryInterval" value="2000" />
+				<entry key="hornetq.client.retryIntervalMultiplier" value="1" />
+				<entry key="hornetq.client.maxRetryInterval" value="60000" />
+
+				<entry key="hornetq.client.reconnectAttempts" value="5" />
+				<entry key="hornetq.client.failoverOnInitialConnection" value="true" />
+				<entry key="hornetq.client.connectionTTL" value="30000" />
+				<entry key="hornetq.client.clientFailureCheckPeriod" value="30000" />
+			</map>
+		</property>
+	</bean>
+
+	<bean id="mq.connectionFactory"
+		  class="org.springframework.jms.connection.CachingConnectionFactory">
+		<property name="targetConnectionFactory" ref="mq.targetConnectionFactory" />
+		<property name="sessionCacheSize" value="10" />
+		<property name="cacheProducers" value="false" />
+	</bean>
+
+	<bean id="mq.core_fund_monitor.jmsTemplate" class="com.handpay.core.mq.CoreRetryJmsTemplate">
+		<property name="connectionFactory" ref="mq.connectionFactory" />
+		<property name="defaultDestinationName" value="core_fund_monitor"></property>
+	</bean>
+```
+消费端配置请参考:
+```
+<bean id="mq.listener.coreOrderDelivery"
+		  class="org.springframework.jms.listener.DefaultMessageListenerContainer">
+		<property name="connectionFactory" ref="mq.connectionFactory" />
+		<property name="concurrency" value="1-5" />
+		<property name="messageListener" ref="mq.coreOrder.delivery.CoreOrderMessageListener" />
+		<property name="destinationName" value="core_order" />
+	</bean>
+
+<bean id="mq.coreOrder.delivery.CoreOrderMessageListener" class="com.handpay.core.coreorder.kernel.delivery.CoreOrderMessageListener"/>
+```
+注意:类com.handpay.core.coreorder.kernel.delivery.CoreOrderMessageListener需实现javax.jms.MessageListener接口
 ### 4.2 disruptor
 
 ## 5 RPC
