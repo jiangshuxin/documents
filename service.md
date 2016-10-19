@@ -252,13 +252,166 @@
 ```
 
 ### 5.2 httpInvoker
+#### 5.2.1 httpInvoker依赖
+```
+<dependency>
+  <groupId>com.handpay</groupId>
+  <artifactId>hpInterface4.0</artifactId>
+  <version>1.1.0</version>
+</dependency>
+```
+#### 5.2.2 httpInvoker Server
+Server端spring配置文件如下:
+```
+<bean id="hisUrlMappingAnno"
+		class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+	</bean>
 
+	<!-- Spring 容器后处理器，用于解释http invoker 注释声明 -->
+	<bean class="com.handpay.core.httpinvoker.HttpInvokerPostProcessor">
+		<property name="httpInvokerHandleMapping">
+			<ref bean="hisUrlMappingAnno" />
+		</property>
+		<property name="onlyClientWired">
+			<value>false</value>
+		</property>
+		<property name="exportedServiceUrlsInfo">
+			<map>
+				<entry key="auth.authService" value="/authService.his" />
+				<entry key="auth.authAdminService" value="/authAdminService.his" />
+			</map>
+		</property>
+	</bean>
+```
+对应的Java代码如下:
+```
+@HttpInvokerService(exportedRelativeUrl = "<auth.authService>", serviceInterfaceClass = IAuthService.class)
+public class AuthServiceImpl implements IAuthService{...}
+```
+#### 5.2.3 httpInvoker Client
+Client端spring配置文件如下:
+```
+    <bean class="com.handpay.core.httpinvoker.HttpInvokerPostProcessor">
+        <property name="clientUrlsInfo">
+            <map>
+                <entry key="auth.authService">
+                    <value>${auth.service.address}/authService.his</value>
+                </entry>
+                <entry key="auth.authAdminService">
+                    <value>${auth.service.address}/authAdminService.his</value>
+                </entry>
+            </map>
+        </property>		
+    </bean>
+```
+注意,auth.service.address为服务对应的地址,一般写在属性文件中。
+对应的Java代码如下:
+```
+public class LoginAction extends BaseAction {
+
+	private IAuthService authService;
+	
+	@HttpInvokerClientWired(remoteServiceUrl = "<auth.authService>")
+	public void setAuthService(IAuthService authService) {
+		this.authService = authService;
+	}
+	...
+}
+```
 ## 6 定时任务
 ### 6.1 spring集成quartz
 ### 6.2 spring TaskExecutor和TaskScheduler
 
 ## 7 公共服务
 ### 7.1 短信服务
+#### 7.1.1 调用说明
+	目前调用短信服务的基本都调用downloadService，或者其他封装的服务。实际这些提供短信服务的service都是对短信系统进行了简单的封装。
+短信系统直接提供下行服务的url是:http://sms.99wuxian.com:12501/sgs/front/
+SendSm!sendMsg.action 参数如下表
+形参名称	解释	实例
+tk	token 令牌，不能为空	373058ca7a
+m	接受信息的手机号码，不能为空	13812345678
+smc	发送的内容，不能为空	Hi，您好！
+amid	应该记录的id，小于32位数字，不能为空	123456
+dtime	定时发送时间,14位数，不填立即发送	20140826152930
+apptp	应用分类，小于50个字符	app
+appara	应用自定义参数，小于50个字符	app1
+sprio	发送优先级0-9，默认5	5
+frt	失败重发次数，大于0小于3	1
+srurl	状态报告通知应用的url	http://app.99wuxian.com/xxx.do
+vtime	短信发送有效期，不填无失效期	20140826154055
+ext	运营商扩展子号码，要供应商支持	-
+sm	拆分不是none：不拆分，auto：自动，default：按照标准拆分（59个字）	auto
+tm	信息时间处理模式 immediate：立刻发送（默认），delay：延时，fixed：定时	immediate
+
+  2.2 配置
+	a.首先配置token，如果使用了downloadService发送短信，不配置token使用默认的token，不建议使用默认的token.支撑【令牌管理】可以查看。
+	b.选择的token会对应一个应用名称，一个应用会对呀一个注册公司，状态为启用。支撑【应用管理】可以查看。
+	c.发送的通道的注册公司要跟token对应的注册公司一致，且通道处于启用状态。支撑【通道管理】可以查看。
+	d.如果要获取短信发送的结果只需在发送短信的时候将srurl这个参数赋值，短信系统会在信息发送有结果了，回调此url。回调的参数如下
+形参名称	解释	实例
+sgsid	短信系统id，sequence	2566
+amid	应该记录的id，小于32位数字，不能为空	123456
+resp	短信在运营商那里的发送结果	03(建周发送成功状态)
+desc	描述	
+m	手机号码	13812345678
+apptp	应用分类，小于50个字符	app
+appara	应用自定义参数，小于50个字符	app1
+sp	运营商扩展子号码，要供应商支持	
+
+
+  e.如果需要短信的上行服务需要在支撑的【上行管理->创建新配置】中选择自己的应用配置规则。短信系统在有上行的时候会去查找所有的规则，找到通知对应的应用，应用接受的参数列表如下
+形参名称	解释	实例
+sgsid	短信系统id，sequence	2563
+m	手机号码	13812345678
+rep	上行的内容，也就是用户回复的内容	A123
+rept	上行到达短信系统的时间	20140828105125
+
+
 ### 7.2 邮件服务
 ### 7.3 Otp服务
-### 7.4 统一session
+#### 7.3.1 Otp 管理
+otp管理系统测试环境地址：http://10.48.170.201:7000/otp-admin/login.html
+用户名/密码：admin/123456
+生产环境由sys操作
+
+#### 7.3.2 新增用户
+1. 登录 OTP 管理系统
+2. 点击【用户管理】中的【新建】按钮
+3. 填写业务系统代号和业务系统的登录用户名后，点击【添加】
+4. 通过【查询】查找到第 3 步添加的用户，点击【生成二维码】按钮
+5. 使用手机的 Google Authenticator 应用扫描二维码
+   若手机上未装 Google Authenticator 时，点击二维码下面相应的手机操作系统进行安装，目前支持 iOS 和 Android
+   (a) iOS 会跳至 itunes 下载应用
+   (b) Android 通过扫描二维码直接下载安装 Google Authenticator 和 Google Authenticator 所使用的 Zxing 扫码安装程序
+6. 点击【验证】，输入系统登录用户名和业务系统代码，以及 Google Authenticator 生成的 6 位数字，点击【验证】
+   6.1  如果验证成功，表示当前的扫码是正确的
+   6.2  如果验证不成功
+        (a) 可以尝试重新点击【生成二维码】，重新扫码（重新扫码之前需要将手机 Google Authenticator 中对应用户删除）
+        (b) 校准手机的系统时间
+
+#### 7.3.3 HTTP 接口
+1. 新增用户
+URL: http://otpservice/otp-service/api/creator
+POST 参数:
+    userName: 业务系统的用户名
+    issuer: 业务系统代号
+    mobile: 手机号码（选填）
+    name: 用户姓名（选填）
+返回 JSON：
+    创建成功: { "message": "ok" }
+    重复数据: { "message": "此条记录已存在" }
+    issuer为空: { "message": "没有填写认证单位参数(issuer参数为空)" }
+    userName为空: { "message": "没有填写认证单位参数(userName参数为空)" }
+
+2. 校验口令
+URL: http://otpservice/otp-service/api/verifier
+POST 参数:
+    userName: 业务系统的用户名
+    issuer: 业务系统代号
+    authCode: 用户输入需要校验的 OTP 口令
+返回 JSON：
+    校验成功: { "passed": true, "message": "ok" }
+    authCode为空或错误: { "passed": false, "message": "验证未通过" }
+    issuer为空: { "passed": false, "message": "没有填写认证单位参数(issuer参数为空)" }
+    userName为空: { "passed": false, "message": "没有填写用户名参数(userName参数为空)" }
