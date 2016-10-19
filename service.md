@@ -326,6 +326,7 @@ public class LoginAction extends BaseAction {
 ### 7.1 短信服务
 #### 7.1.1 调用说明
 	目前调用短信服务的基本都调用downloadService，或者其他封装的服务。实际这些提供短信服务的service都是对短信系统进行了简单的封装。
+	
 短信系统直接提供下行服务的url是:http://sms.99wuxian.com:12501/sgs/front/
 SendSm!sendMsg.action 参数如下表
 形参名称	解释	实例
@@ -369,6 +370,69 @@ rept	上行到达短信系统的时间	20140828105125
 
 
 ### 7.2 邮件服务
+1. pom.xml 增加依赖
+
+    <dependency>
+      <groupId>com.handpay</groupId>
+      <artifactId>handpay-mail-spec</artifactId>
+      <version>1.0.1</version>
+    </dependency>
+
+2. spring 的 dubbo 配置文件，（如果工程中没有 common 注册中心时）增加 common 的注册中心
+
+    <dubbo:registry protocol="${common.dubbo.registry.protocol}"
+        address="${common.dubbo.registry.address}"
+        file="${user.home}/.dubbo-cache/common-3${env.num}"
+        group="dubbo-${env_path}" id="common.registry" default="false" />
+
+    common.dubbo.registry.protocol = zookeeper
+    common.dubbo.registry.address  = common1:2141,common2:2142,common3:2143
+
+3. dubbo reference 增加
+
+    <dubbo:reference id="mailSender" interface="com.handpay.framework.mail.spec.MailSender"
+      check="false" retries="0" registry="common.registry" />
+
+   如果工程中已配置有 common 的注册中心，把 registry 改为已配置好的 common 注册中心的 id 值
+
+4. 邮件发送，调用 com.handpay.framework.mail.spec.MailSender 接口的 send 方法：
+
+    String send(MailRequest request);
+
+    MailRequest 是个普通的 POJO 类，发送邮件时需要填写以下参数
+
+        MailRequest request = new MailRequest();
+
+        // 邮件编码，默认为 GBK
+        request.setEncoding( "UTF-8" );
+
+        // 邮件标题
+        request.setSubject( "Mail Subject" );
+
+        // 邮件发件人，该发件人必须在邮件服务中登录过
+        request.setFrom( from );
+
+        // 邮件收件人，可以调用多次添加多个，也可将收件人使用 ; 分隔添加
+        request.addRecipient( "" );
+
+        // 邮件内容，内容默认采用 HTML 发送，若需要纯文本发送添加 request.setHtml( false ); 即可
+        request.setContent( "邮件内容" );
+
+    接口方法返回值需要在 INFO 级别的日志中输出，以便于今后问题查找
+
+        String result = mailSender.send( request );
+        LOG.info( "Send mail, from: {}, result: {}" , request.getFrom() , result );
+
+    result 的数据格式为：<邮件发送标识>:<邮件发送状态>
+
+    邮件发送标识：每次邮件发送的唯一标识号
+    邮件发送状态：success -- 邮件服务已成功接收该邮件
+                  param.required.<field_name> -- request 中的 field 字段为 null 或者空
+                  encoding.unsupported.XXXX  -- XXXX 字符编码不被支持
+                  mail.from.not.exists -- 发件人没有在邮件服务中登记
+                  mail.smtp.not.exists -- 邮件发送的 SMTP 服务器不存在
+
+    result 仅在返回 <邮件发送标识>:success 才表示邮件服务已成功接收该邮件
 ### 7.3 Otp服务
 #### 7.3.1 Otp 管理
 otp管理系统测试环境地址：http://10.48.170.201:7000/otp-admin/login.html
