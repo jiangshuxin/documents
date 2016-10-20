@@ -76,8 +76,9 @@
 
 ## 2 分布式锁  
 公司分布锁基于```zookeeper```开发的，所以需要配置```zookeeper```连接信息；具体步骤如下：  
+
 1. ```pom.xml```中引入
-	
+
   ```
   <dependency>
 	  <groupId>com.handpay</groupId>
@@ -395,7 +396,6 @@ rept | 上行到达短信系统的时间 | 20140828105125
   <version>1.0.1</version>
 </dependency>
 ```
-
 2. ```spring``` 的 ```dubbo```配置文件，（如果工程中没有```common``` 注册中心时）增加```common```的注册中心
 ```
 <dubbo:registry protocol="${common.dubbo.registry.protocol}"
@@ -406,15 +406,12 @@ rept | 上行到达短信系统的时间 | 20140828105125
 common.dubbo.registry.protocol = zookeeper
 common.dubbo.registry.address  = common1:2141,common2:2142,common3:2143
 ```
-
 3. ```dubbo reference```增加
 ```
 <dubbo:reference id="mailSender" interface="com.handpay.framework.mail.spec.MailSender" 
     check="false" retries="0" registry="common.registry" />
-```
-
-如果工程中已配置有```common```的注册中心，把```registry```改为已配置好的```common```注册中心的```id```值
-
+```  
+如果工程中已配置有```common```的注册中心，把```registry```改为已配置好的```common```注册中心的```id```值  
 4. 邮件发送，调用```com.handpay.framework.mail.spec.MailSender```接口的```send```方法：
 
 ```
