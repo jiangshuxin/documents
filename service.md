@@ -3,8 +3,8 @@
 
 ## 1 缓存
 ### 1.1 cache-client
-1. ```pom.xml```中引入```cache-client-1.6.1.jar```  
-2. 在```properties```中添加```redis```服务器配置信息  
+#### 1. ```pom.xml```中引入```cache-client-1.6.1.jar```  
+#### 2. 在```properties```中添加```redis```服务器配置信息  
 
   ```
   # redis address:ip:port:pwd
@@ -13,7 +13,7 @@
   cache_server_appCode=app123
   ```
   
-2. 编写```spring-redis-cache.xml```文件  
+#### 3. 编写```spring-redis-cache.xml```文件  
 
   ```
   <?xml version="1.0" encoding="UTF-8"?>
@@ -64,19 +64,20 @@
   </beans>
   ```
 
-2. ```spring applicationContext```中引入配置文件
+#### 4. ```spring applicationContext```中引入配置文件
 
 	```
 	<import resource="spring-redis-cache.xml"/>
 	```
 
-2. 利用```cacheExcutor```操作Redis
+#### 5. 利用```cacheExcutor```操作```Redis```
 
 ### 1.2 Redis 3.0分片
 
 ## 2 分布式锁  
 公司分布锁基于```zookeeper```开发的，所以需要配置```zookeeper```连接信息；具体步骤如下：  
-### 2.1 ```pom.xml```中引入
+  
+### 1. ```pom.xml```中引入
 
   ```
   <dependency>
@@ -86,7 +87,7 @@
   </dependency>
   ```
 
-### 2.2 在```properties```中添加```zookeeper```服务器配置信息
+### 2. 在```properties```中添加```zookeeper```服务器配置信息
 
   ```
   locks.zookeeper.connectServer=zookeeper1:2181,zookeeper2:2182,zookeeper3:2183
@@ -95,7 +96,7 @@
   locks.zookeeper.sessionTimeout = 15000
   ```
   
-### 2.3 编写```spring-locks.xml```文件
+### 3. 编写```spring-locks.xml```文件
 
   ```
   <?xml version="1.0" encoding="UTF-8"?>
@@ -117,7 +118,7 @@
   </beans>
   ```
   
-### 2.4 利用```distributedLockFactory```构建相应的```lock```，操作```api```
+### 4. 利用```distributedLockFactory```构建相应的```lock```，操作```api```
 
 ## 3 搜索
 ### 3.1 Elasticsearch
