@@ -66,9 +66,9 @@
 
 #### 4. ```spring applicationContext```中引入配置文件
 
-	```
-	<import resource="spring-redis-cache.xml"/>
-	```
+  ```
+  <import resource="spring-redis-cache.xml"/>
+  ```
 
 #### 5. 利用```cacheExcutor```操作```Redis```
 
