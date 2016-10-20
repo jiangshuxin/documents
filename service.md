@@ -466,6 +466,7 @@ otp管理系统测试环境地址：<http://10.48.170.201:7000/otp-admin/login.h
     mobile: 手机号码（选填）
     name: 用户姓名（选填）
     ```
+
 * 返回 JSON：  
     ```
 	创建成功: { "message": "ok" }
@@ -482,6 +483,7 @@ otp管理系统测试环境地址：<http://10.48.170.201:7000/otp-admin/login.h
     issuer: 业务系统代号
     authCode: 用户输入需要校验的 OTP 口令
     ```
+
 * 返回 JSON：  
 	```
 	校验成功: { "passed": true, "message": "ok" }
