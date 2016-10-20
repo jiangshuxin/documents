@@ -78,13 +78,13 @@
 公司分布锁基于```zookeeper```开发的，所以需要配置```zookeeper```连接信息；具体步骤如下：  
 1. ```pom.xml```中引入
 	
-	```
-	<dependency>
-	    <groupId>com.handpay</groupId>
-	    <artifactId>locks</artifactId>
-	    <version>1.0.1</version>
-	</dependency>
-	```
+  ```
+  <dependency>
+	  <groupId>com.handpay</groupId>
+	  <artifactId>locks</artifactId>
+	  <version>1.0.1</version>
+  </dependency>
+  ```
 
 2. 在```properties```中添加```zookeeper```服务器配置信息
 
@@ -388,7 +388,6 @@ rept | 上行到达短信系统的时间 | 20140828105125
 
 ### 7.2 邮件服务
 1. ```pom.xml``` 增加依赖
-
 ```
 <dependency>
   <groupId>com.handpay</groupId>
@@ -398,7 +397,6 @@ rept | 上行到达短信系统的时间 | 20140828105125
 ```
 
 2. ```spring``` 的 ```dubbo```配置文件，（如果工程中没有```common``` 注册中心时）增加```common```的注册中心
-
 ```
 <dubbo:registry protocol="${common.dubbo.registry.protocol}"
     address="${common.dubbo.registry.address}"
@@ -410,7 +408,6 @@ common.dubbo.registry.address  = common1:2141,common2:2142,common3:2143
 ```
 
 3. ```dubbo reference```增加
-
 ```
 <dubbo:reference id="mailSender" interface="com.handpay.framework.mail.spec.MailSender" 
     check="false" retries="0" registry="common.registry" />
