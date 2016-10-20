@@ -18,17 +18,17 @@
   ```
   <?xml version="1.0" encoding="UTF-8"?>
   <beans xmlns="http://www.springframework.org/schema/beans"
-  	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
-  	xmlns:tx="http://www.springframework.org/schema/tx" xmlns:util="http://www.springframework.org/schema/util"
-  	xmlns:hpcache="http://www.handpay.com.cn/schema/cache"
-  	xsi:schemaLocation="
-		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
-		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
-		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd
-		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-2.5.xsd
-		http://www.handpay.com.cn/schema/cache http://www.handpay.com.cn/schema/cache/handpay-cache.xsd">
+  		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+  		xmlns:tx="http://www.springframework.org/schema/tx" xmlns:util="http://www.springframework.org/schema/util"
+  		xmlns:hpcache="http://www.handpay.com.cn/schema/cache"
+  		xsi:schemaLocation="
+			http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+			http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+			http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd
+			http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-2.5.xsd
+			http://www.handpay.com.cn/schema/cache http://www.handpay.com.cn/schema/cache/handpay-cache.xsd">
 
-  	<!--redis常用缓存客户端定义-->
+  	  <!--redis常用缓存客户端定义-->
       <!--server ip <hpcache:local address="10.48.193.201:6379"/> handpay/handpay-->
       <hpcache:cache-executor appcode="${cache_server_appCode}" id="cacheExecutor">
           <hpcache:server-address>
@@ -63,27 +63,28 @@
 
   </beans>
   ```
-3. ```spring applicationContext```中引入配置文件
 
-```
-<import resource="spring-redis-cache.xml"/>
-```
+2. ```spring applicationContext```中引入配置文件
 
-4. 利用```cacheExcutor```操作Redis
+	```
+	<import resource="spring-redis-cache.xml"/>
+	```
+
+2. 利用```cacheExcutor```操作Redis
 
 ### 1.2 Redis 3.0分片
 
 ## 2 分布式锁  
 公司分布锁基于```zookeeper```开发的，所以需要配置```zookeeper```连接信息；具体步骤如下：  
 1. ```pom.xml```中引入
-
-```
-<dependency>
-    <groupId>com.handpay</groupId>
-    <artifactId>locks</artifactId>
-    <version>1.0.1</version>
-</dependency>
-```
+	
+	```
+	<dependency>
+	    <groupId>com.handpay</groupId>
+	    <artifactId>locks</artifactId>
+	    <version>1.0.1</version>
+	</dependency>
+	```
 
 2. 在```properties```中添加```zookeeper```服务器配置信息
 
@@ -397,6 +398,7 @@ rept | 上行到达短信系统的时间 | 20140828105125
 ```
 
 2. ```spring``` 的 ```dubbo```配置文件，（如果工程中没有```common``` 注册中心时）增加```common```的注册中心
+
 ```
 <dubbo:registry protocol="${common.dubbo.registry.protocol}"
     address="${common.dubbo.registry.address}"
@@ -408,13 +410,16 @@ common.dubbo.registry.address  = common1:2141,common2:2142,common3:2143
 ```
 
 3. ```dubbo reference```增加
+
 ```
 <dubbo:reference id="mailSender" interface="com.handpay.framework.mail.spec.MailSender" 
     check="false" retries="0" registry="common.registry" />
 ```
+
 如果工程中已配置有```common```的注册中心，把```registry```改为已配置好的```common```注册中心的```id```值
 
 4. 邮件发送，调用```com.handpay.framework.mail.spec.MailSender```接口的```send```方法：
+
 ```
 String send(MailRequest request);
 //MailRequest 是个普通的 POJO 类，发送邮件时需要填写以下参数
@@ -435,6 +440,7 @@ request.setContent( "邮件内容" );
 String result = mailSender.send( request );
 LOG.info( "Send mail, from: {}, result: {}" , request.getFrom() , result );
 ```
+
 result 的数据格式为：<邮件发送标识>:<邮件发送状态>
 * 邮件发送标识：每次邮件发送的唯一标识号
 * 邮件发送状态：
