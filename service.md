@@ -466,25 +466,25 @@ otp管理系统测试环境地址：<http://10.48.170.201:7000/otp-admin/login.h
     mobile: 手机号码（选填）
     name: 用户姓名（选填）
     ```
-* 返回 JSON：
+* 返回 JSON：  
     ```
-    创建成功: { "message": "ok" }
-    重复数据: { "message": "此条记录已存在" }
+	创建成功: { "message": "ok" }
+	重复数据: { "message": "此条记录已存在" }
     issuer为空: { "message": "没有填写认证单位参数(issuer参数为空)" }
     userName为空: { "message": "没有填写认证单位参数(userName参数为空)" }
     ```
 
 2. 校验口令
 * URL：<http://otpservice/otp-service/api/verifier>
-* POST 参数：
+* POST 参数：  
     ```
     userName: 业务系统的用户名
     issuer: 业务系统代号
     authCode: 用户输入需要校验的 OTP 口令
     ```
-* 返回 JSON：
-    ```
-    校验成功: { "passed": true, "message": "ok" }
+* 返回 JSON：  
+	```
+	校验成功: { "passed": true, "message": "ok" }
     authCode为空或错误: { "passed": false, "message": "验证未通过" }
     issuer为空: { "passed": false, "message": "没有填写认证单位参数(issuer参数为空)" }
     userName为空: { "passed": false, "message": "没有填写用户名参数(userName参数为空)" }
