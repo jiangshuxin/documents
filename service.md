@@ -485,6 +485,7 @@ otp管理系统测试环境地址：<http://10.48.170.201:7000/otp-admin/login.h
     ```
 
 * 返回 JSON：  
+
 	```
 	校验成功: { "passed": true, "message": "ok" }
     authCode为空或错误: { "passed": false, "message": "验证未通过" }
