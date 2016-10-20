@@ -76,8 +76,7 @@
 
 ## 2 分布式锁  
 公司分布锁基于```zookeeper```开发的，所以需要配置```zookeeper```连接信息；具体步骤如下：  
-
-1. ```pom.xml```中引入
+### 2.1 ```pom.xml```中引入
 
   ```
   <dependency>
@@ -87,7 +86,7 @@
   </dependency>
   ```
 
-2. 在```properties```中添加```zookeeper```服务器配置信息
+### 2.2 在```properties```中添加```zookeeper```服务器配置信息
 
   ```
   locks.zookeeper.connectServer=zookeeper1:2181,zookeeper2:2182,zookeeper3:2183
@@ -96,7 +95,7 @@
   locks.zookeeper.sessionTimeout = 15000
   ```
   
-3. 编写```spring-locks.xml```文件
+### 2.3 编写```spring-locks.xml```文件
 
   ```
   <?xml version="1.0" encoding="UTF-8"?>
@@ -118,7 +117,7 @@
   </beans>
   ```
   
-4. 利用```distributedLockFactory```构建相应的```lock```，操作```api```
+### 2.4 利用```distributedLockFactory```构建相应的```lock```，操作```api```
 
 ## 3 搜索
 ### 3.1 Elasticsearch
@@ -152,6 +151,7 @@
 ```
 
 如需指定版本则使用```<version>2.2.5.FINAL</version>```
+
 #### 4.4.2 配置文件说明
 由于基于```Spring-JMS```开发,请严格按照**原生ConnectionFactory**->**缓存ConnectionFactory**->**JmsTemplate**三部曲进行配置。
 
@@ -473,7 +473,7 @@ otp管理系统测试环境地址：<http://10.48.170.201:7000/otp-admin/login.h
     ```
 
 #### 7.3.3 HTTP 接口
-1. 新增用户  
+##### 7.3.3.1 新增用户  
 * URL：<http://otpservice/otp-service/api/creator>  
 * POST 参数：  
 
@@ -493,7 +493,7 @@ otp管理系统测试环境地址：<http://10.48.170.201:7000/otp-admin/login.h
     userName为空: { "message": "没有填写认证单位参数(userName参数为空)" }
     ```
 
-2. 校验口令
+##### 7.3.3.2 校验口令
 * URL：<http://otpservice/otp-service/api/verifier>
 * POST 参数：  
 
