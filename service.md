@@ -388,7 +388,7 @@ rept | 上行到达短信系统的时间 | 20140828105125
 
 
 ### 7.2 邮件服务
-1. ```pom.xml``` 增加依赖
+#### 7.2.1 ```pom.xml``` 增加依赖
 ```
 <dependency>
   <groupId>com.handpay</groupId>
@@ -396,7 +396,7 @@ rept | 上行到达短信系统的时间 | 20140828105125
   <version>1.0.1</version>
 </dependency>
 ```
-2. ```spring``` 的 ```dubbo```配置文件，（如果工程中没有```common``` 注册中心时）增加```common```的注册中心
+#### 7.2.2 ```spring``` 的 ```dubbo```配置文件，（如果工程中没有```common``` 注册中心时）增加```common```的注册中心
 ```
 <dubbo:registry protocol="${common.dubbo.registry.protocol}"
     address="${common.dubbo.registry.address}"
@@ -406,14 +406,13 @@ rept | 上行到达短信系统的时间 | 20140828105125
 common.dubbo.registry.protocol = zookeeper
 common.dubbo.registry.address  = common1:2141,common2:2142,common3:2143
 ```
-3. ```dubbo reference```增加
+#### 7.2.3 ```dubbo reference```增加
 ```
 <dubbo:reference id="mailSender" interface="com.handpay.framework.mail.spec.MailSender" 
     check="false" retries="0" registry="common.registry" />
 ```  
 如果工程中已配置有```common```的注册中心，把```registry```改为已配置好的```common```注册中心的```id```值  
-4. 邮件发送，调用```com.handpay.framework.mail.spec.MailSender```接口的```send```方法：
-
+#### 7.2.4 邮件发送，调用```com.handpay.framework.mail.spec.MailSender```接口的```send```方法：  
 ```
 String send(MailRequest request);
 //MailRequest 是个普通的 POJO 类，发送邮件时需要填写以下参数
