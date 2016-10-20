@@ -1,15 +1,18 @@
 # 基础服务
 ![public-service](https://github.com/zhengfc/redis-cluster-monitor/blob/master/doc/public-service.png?raw=true)
+
 ## 1 缓存
 ### 1.1 cache-client
 1. ```pom.xml```中引入```cache-client-1.6.1.jar```  
 2. 在```properties```中添加```redis```服务器配置信息  
+
   ```
   # redis address:ip:port:pwd
   # cache_server_address=10.48.193.201:6669:test123
   cache_server_address=http://redismonitor/cache-monitor/ws/cache-server.htm
   cache_server_appCode=app123
   ```
+  
 2. 编写```spring-redis-cache.xml```文件  
 
   ```
@@ -19,11 +22,11 @@
   	xmlns:tx="http://www.springframework.org/schema/tx" xmlns:util="http://www.springframework.org/schema/util"
   	xmlns:hpcache="http://www.handpay.com.cn/schema/cache"
   	xsi:schemaLocation="
-  			http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
-  			http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
-  			http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd
-  			http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-2.5.xsd
-  			http://www.handpay.com.cn/schema/cache http://www.handpay.com.cn/schema/cache/handpay-cache.xsd">
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd
+		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-2.5.xsd
+		http://www.handpay.com.cn/schema/cache http://www.handpay.com.cn/schema/cache/handpay-cache.xsd">
 
   	<!--redis常用缓存客户端定义-->
       <!--server ip <hpcache:local address="10.48.193.201:6379"/> handpay/handpay-->
@@ -61,9 +64,11 @@
   </beans>
   ```
 3. ```spring applicationContext```中引入配置文件
+
 ```
 <import resource="spring-redis-cache.xml"/>
 ```
+
 4. 利用```cacheExcutor```操作Redis
 
 ### 1.2 Redis 3.0分片
@@ -71,20 +76,24 @@
 ## 2 分布式锁  
 公司分布锁基于```zookeeper```开发的，所以需要配置```zookeeper```连接信息；具体步骤如下：  
 1. ```pom.xml```中引入
+
 ```
-    <dependency>
-        <groupId>com.handpay</groupId>
-        <artifactId>locks</artifactId>
-        <version>1.0.1</version>
-    </dependency>
+<dependency>
+    <groupId>com.handpay</groupId>
+    <artifactId>locks</artifactId>
+    <version>1.0.1</version>
+</dependency>
 ```
+
 2. 在```properties```中添加```zookeeper```服务器配置信息
+
   ```
   locks.zookeeper.connectServer=zookeeper1:2181,zookeeper2:2182,zookeeper3:2183
   locks.zookeeper.namespace = locks
   locks.zookeeper.connectionTimeout = 30000
   locks.zookeeper.sessionTimeout = 15000
   ```
+  
 3. 编写```spring-locks.xml```文件
 
   ```
@@ -92,9 +101,8 @@
   <beans xmlns="http://www.springframework.org/schema/beans"
   	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   	xmlns:context="http://www.springframework.org/schema/context"
-  	xsi:schemaLocation="
-  			http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
-  			http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+  	xsi:schemaLocation=" http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+  		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
 
   	<!-- XML方式，最简配置 -->
   	<bean id="distributedLockFactory"
@@ -107,6 +115,7 @@
   	</bean>
   </beans>
   ```
+  
 4. 利用```distributedLockFactory```构建相应的```lock```，操作```api```
 
 ## 3 搜索
@@ -116,34 +125,36 @@
 ## 4 消息
 ### 4.1 HornetQ
 #### 4.1.1 依赖声明
+
 ```
-    <dependency>
-        <groupId>com.handpay</groupId>
-        <artifactId>core-common</artifactId>
-        <version>1.0.0</version>
-        <scope>compile</scope>
-    </dependency>
-    <dependency>
-        <groupId>com.handpay</groupId>
-        <artifactId>core-interface</artifactId>
-        <version>1.0.0</version>
-        <scope>compile</scope>
-    </dependency>
-    <dependency>
-        <groupId>org.hornetq</groupId>
-        <artifactId>hornetq-core-client</artifactId>
-    </dependency>
-    <dependency>
-        <groupId>org.hornetq</groupId>
-        <artifactId>hornetq-jms-client</artifactId>
-    </dependency>
+<dependency>
+    <groupId>com.handpay</groupId>
+    <artifactId>core-common</artifactId>
+    <version>1.0.0</version>
+    <scope>compile</scope>
+</dependency>
+<dependency>
+    <groupId>com.handpay</groupId>
+    <artifactId>core-interface</artifactId>
+    <version>1.0.0</version>
+    <scope>compile</scope>
+</dependency>
+<dependency>
+    <groupId>org.hornetq</groupId>
+    <artifactId>hornetq-core-client</artifactId>
+</dependency>
+<dependency>
+    <groupId>org.hornetq</groupId>
+    <artifactId>hornetq-jms-client</artifactId>
+</dependency>
 ```
+
 如需指定版本则使用```<version>2.2.5.FINAL</version>```
 #### 4.4.2 配置文件说明
 由于基于```Spring-JMS```开发,请严格按照**原生ConnectionFactory**->**缓存ConnectionFactory**->**JmsTemplate**三部曲进行配置。
+
 ```
-<bean name="mq.targetConnectionFactory"
-		  class="com.handpay.core.common.spring.hornetq.DirectHornetQCFFactoryBean">
+<bean name="mq.targetConnectionFactory" class="com.handpay.core.common.spring.hornetq.DirectHornetQCFFactoryBean">
 	<property name="address" value="${hornetq.server.address}"></property>
 	<property name="params">
 		<map>
@@ -171,18 +182,20 @@
 	<property name="defaultDestinationName" value="core_fund_monitor"></property>
 </bean>
 ```
-消费端配置请参考:
+
+消费端配置请参考:  
+
 ```
-<bean id="mq.listener.coreOrderDelivery"
-		  class="org.springframework.jms.listener.DefaultMessageListenerContainer">
-		<property name="connectionFactory" ref="mq.connectionFactory" />
-		<property name="concurrency" value="1-5" />
-		<property name="messageListener" ref="mq.coreOrder.delivery.CoreOrderMessageListener" />
-		<property name="destinationName" value="core_order" />
-	</bean>
+<bean id="mq.listener.coreOrderDelivery" class="org.springframework.jms.listener.DefaultMessageListenerContainer">
+	<property name="connectionFactory" ref="mq.connectionFactory" />
+	<property name="concurrency" value="1-5" />
+	<property name="messageListener" ref="mq.coreOrder.delivery.CoreOrderMessageListener" />
+	<property name="destinationName" value="core_order" />
+</bean>
 
 <bean id="mq.coreOrder.delivery.CoreOrderMessageListener" class="com.handpay.core.coreorder.kernel.delivery.CoreOrderMessageListener"/>
 ```
+
 注意:类```com.handpay.core.coreorder.kernel.delivery.CoreOrderMessageListener```需实现```javax.jms.MessageListener```接口
 ### 4.2 disruptor
 
@@ -191,6 +204,7 @@
 公司的服务发现是基于阿里的```dubbo```，```dubbo```根据需要主要提供下面三种配置信息。
 #### 5.1.1 dubbo-config  
 用于配置服务发现注册中心地址及应用信息计算依赖关系，示例如下：  
+
 ```
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
@@ -207,44 +221,39 @@
 		group="dubbo-${env_path}" check="false" />
 
 	<dubbo:protocol name="${dubbo.protocol.name}" port="3${env.num}79" />
-
 	<dubbo:consumer check="false" timeout="${dubbo.consumer.timeout}" />
 </beans>
 ```
+
 #### 5.1.2 dubbo-client    
 作为消费者，消费服务信息，示例如下：  
+
 ```
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
-	xsi:schemaLocation="
-			http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
-			http://code.alibabatech.com/schema/dubbo http://code.alibabatech.com/schema/dubbo/dubbo.xsd">
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+		http://code.alibabatech.com/schema/dubbo http://code.alibabatech.com/schema/dubbo/dubbo.xsd">
 
 	<!-- 邮件发送服务 -->
-	<dubbo:reference id="sender"
-		interface="com.handpay.framework.mail.spec.MailSender" retries="0"
-		check="false" />
+	<dubbo:reference id="sender" interface="com.handpay.framework.mail.spec.MailSender" retries="0" check="false" />
 </beans>
 ```
+
 #### 5.1.3 dubbo-server  
 作为生产者，提供服务，示例如下
+
 ```
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
-	xsi:schemaLocation="
-			http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
-			http://code.alibabatech.com/schema/dubbo http://code.alibabatech.com/schema/dubbo/dubbo.xsd">
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd 
+		http://code.alibabatech.com/schema/dubbo http://code.alibabatech.com/schema/dubbo/dubbo.xsd">
 
-	<dubbo:service
-		interface="com.handpay.framework.mail.spec.MailSender"
-		ref="mailSender" version="1.0.0" />
-	<bean id="mailSender"
-		class="ccom.handpay.framework.mail.spec.MailSenderImpl">
+	<dubbo:service interface="com.handpay.framework.mail.spec.MailSender" ref="mailSender" version="1.0.0" />
+	<bean id="mailSender" class="ccom.handpay.framework.mail.spec.MailSenderImpl">
 		<property name="mailSenderService" ref="mailSenderService" />
 	</bean>
-
 </beans>
 ```
 
@@ -262,25 +271,24 @@
 Server端```spring```配置文件如下:
 
 ```
-<bean id="hisUrlMappingAnno"
-		class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
-	</bean>
+<bean id="hisUrlMappingAnno" class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+</bean>
 
-	<!-- Spring 容器后处理器，用于解释http invoker 注释声明 -->
-	<bean class="com.handpay.core.httpinvoker.HttpInvokerPostProcessor">
-		<property name="httpInvokerHandleMapping">
-			<ref bean="hisUrlMappingAnno" />
-		</property>
-		<property name="onlyClientWired">
-			<value>false</value>
-		</property>
-		<property name="exportedServiceUrlsInfo">
-			<map>
-				<entry key="auth.authService" value="/authService.his" />
-				<entry key="auth.authAdminService" value="/authAdminService.his" />
-			</map>
-		</property>
-	</bean>
+<!-- Spring 容器后处理器，用于解释http invoker 注释声明 -->
+<bean class="com.handpay.core.httpinvoker.HttpInvokerPostProcessor">
+	<property name="httpInvokerHandleMapping">
+		<ref bean="hisUrlMappingAnno" />
+	</property>
+	<property name="onlyClientWired">
+		<value>false</value>
+	</property>
+	<property name="exportedServiceUrlsInfo">
+		<map>
+			<entry key="auth.authService" value="/authService.his" />
+			<entry key="auth.authAdminService" value="/authAdminService.his" />
+		</map>
+	</property>
+</bean>
 ```
 对应的```Java```代码如下:
 ```
@@ -289,6 +297,7 @@ public class AuthServiceImpl implements IAuthService{...}
 ```
 #### 5.2.3 httpInvoker Client
 Client端```spring```配置文件如下:
+
 ```
 <bean class="com.handpay.core.httpinvoker.HttpInvokerPostProcessor">
     <property name="clientUrlsInfo">
@@ -303,8 +312,10 @@ Client端```spring```配置文件如下:
     </property>		
 </bean>
 ```
+
 注意,```auth.service.address```为服务对应的地址,一般写在属性文件中。
-对应的```Java```代码如下:
+对应的```Java```代码如下:  
+
 ```
 public class LoginAction extends BaseAction {
 
@@ -317,6 +328,7 @@ public class LoginAction extends BaseAction {
 	...
 }
 ```
+
 ## 6 定时任务
 ### 6.1 spring集成quartz
 ### 6.2 spring TaskExecutor和TaskScheduler
@@ -375,6 +387,7 @@ rept | 上行到达短信系统的时间 | 20140828105125
 
 ### 7.2 邮件服务
 1. ```pom.xml``` 增加依赖
+
 ```
 <dependency>
   <groupId>com.handpay</groupId>
@@ -396,7 +409,8 @@ common.dubbo.registry.address  = common1:2141,common2:2142,common3:2143
 
 3. ```dubbo reference```增加
 ```
-<dubbo:reference id="mailSender" interface="com.handpay.framework.mail.spec.MailSender" check="false" retries="0" registry="common.registry" />
+<dubbo:reference id="mailSender" interface="com.handpay.framework.mail.spec.MailSender" 
+    check="false" retries="0" registry="common.registry" />
 ```
 如果工程中已配置有```common```的注册中心，把```registry```改为已配置好的```common```注册中心的```id```值
 
@@ -424,6 +438,7 @@ LOG.info( "Send mail, from: {}, result: {}" , request.getFrom() , result );
 result 的数据格式为：<邮件发送标识>:<邮件发送状态>
 * 邮件发送标识：每次邮件发送的唯一标识号
 * 邮件发送状态：
+
 ```
 success                     //邮件服务已成功接收该邮件
 param.required.<field_name> //request中的field字段为 null 或者空
@@ -431,6 +446,7 @@ encoding.unsupported.XXXX   //XXXX 字符编码不被支持
 mail.from.not.exists        //发件人没有在邮件服务中登记
 mail.smtp.not.exists        //邮件发送的 SMTP 服务器不存在
 ```
+
 result 仅在返回 <邮件发送标识>: success 才表示邮件服务已成功接收该邮件
 
 ### 7.3 Otp服务
@@ -451,6 +467,7 @@ otp管理系统测试环境地址：<http://10.48.170.201:7000/otp-admin/login.h
 6. 点击【验证】，输入系统登录用户名和业务系统代码，以及 Google Authenticator 生成的 6 位数字，点击【验证】  
    6.1  如果验证成功，表示当前的扫码是正确的  
    6.2  如果验证不成功  
+   
     ```
     (a) 可以尝试重新点击【生成二维码】，重新扫码（重新扫码之前需要将手机 Google Authenticator 中对应用户删除）  
     (b) 校准手机的系统时间
@@ -459,7 +476,8 @@ otp管理系统测试环境地址：<http://10.48.170.201:7000/otp-admin/login.h
 #### 7.3.3 HTTP 接口
 1. 新增用户  
 * URL：<http://otpservice/otp-service/api/creator>  
-* POST 参数：
+* POST 参数：  
+
     ```
     userName: 业务系统的用户名
     issuer: 业务系统代号
@@ -468,6 +486,7 @@ otp管理系统测试环境地址：<http://10.48.170.201:7000/otp-admin/login.h
     ```
 
 * 返回 JSON：  
+
     ```
 	创建成功: { "message": "ok" }
 	重复数据: { "message": "此条记录已存在" }
@@ -478,6 +497,7 @@ otp管理系统测试环境地址：<http://10.48.170.201:7000/otp-admin/login.h
 2. 校验口令
 * URL：<http://otpservice/otp-service/api/verifier>
 * POST 参数：  
+
     ```
     userName: 业务系统的用户名
     issuer: 业务系统代号
