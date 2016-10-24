@@ -333,8 +333,107 @@ public class LoginAction extends BaseAction {
 ```
 
 ## 6 定时任务
-### 6.1 spring集成quartz
-### 6.2 spring TaskExecutor和TaskScheduler
+* Cron：计划任务，是在约定的时间执行已经计划好的工作  
+* Cron表达式  
+想了解Cron表达式最好的方法是[Quartz的官方文档](http://www.quartz-scheduler.org/documentation/)。本节也大致介绍一下。  
+Cron表达式由6~7项组成，中间用空格分开。从左到右依次是：秒、分、时、日、月、周几、年（可省略）。值可以是数字，也可以是以下符号：  
+  * ```*```：所有值都匹配
+  * ```?```：无所谓，不关心，通常放在“周几”里
+  * ```,```：或者
+  * ```/```：增量值
+  * ```-```：区间  
+
+  下面举几个例子：  
+  ```0 * * * * *```：每分钟（当秒为0的时候）  
+  ```0 0 * * * *```：每小时（当秒和分都为0的时候）  
+  ```*/10 * * * * *```：每10秒  
+  ```0 5/15 * * * *```：每小时的5分、20分、35分、50分  
+  ```0 0 9,13 * * *```：每天的9点和13点  
+  ```0 0 8-10 * * *```：每天的8点、9点、10点  
+  ```0 0/30 8-10 * * *```：每天的8点、8点半、9点、9点半、10点  
+  ```0 0 9-17 * * MON-FRI```：每周一到周五的9点、10点…直到17点（含）  
+  ```0 0 0 25 12 ?```：每年12月25日圣诞节的0点0分0秒（午夜）  
+  ```0 30 10 * * ? 2016```：2016年每天的10点半
+### 6.1 Spring TaskScheduler
+* 注解的方法
+    ```
+    @Scheduled(cron = "${cron_expression}")
+    ```
+* xml配置方法
+    ```
+    <task:scheduler id="myScheduler"/>
+    
+    <task:scheduled-tasks scheduler="myScheduler">
+        <task:scheduled ref="doSomethingTask" method="doSomething" cron="${cron_expression}"/>
+    </task:scheduled-tasks>
+    ```
+* [示例](https://spring.io/guides/gs/scheduling-tasks/#_enable_scheduling)
+  * ```Application```加入```@EnableScheduling```注解
+    ```
+    @SpringBootApplication
+    @EnableScheduling
+    public class Application {
+    
+        public static void main(String[] args) throws Exception {
+            SpringApplication.run(Application.class);
+        }
+    }
+    ```
+  * ```ScheduledTasks ```
+    ```
+    @Component
+    public class ScheduledTasks {
+    
+        private static final Logger log = LoggerFactory.getLogger(ScheduledTasks.class);
+    
+        private static final SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
+        //5秒执行一次
+        @Scheduled(fixedRate = 5000)
+        public void reportCurrentTime() {
+            log.info("The time is now {}", dateFormat.format(new Date()));
+        }
+        //每天9点执行
+        @Scheduled(cron = "0 0 9 * * *")
+        public void doSomething() {
+        	log.info("Job start ......");
+        	log.info("do something ......");
+        	log.info("Job End ......");
+        }
+    }
+    ```
+### 6.2 Spring集成quartz  
+* 引入```quartz```依赖
+    ```
+    <dependency>
+        <groupId>quartz</groupId>
+        <artifactId>quartz</artifactId>
+        <version>1.6.5</version>
+    </dependency>
+    ```
+* 配置定时任务执行线程和周期
+    ```
+    <task:scheduler id="myScheduler" pool-size="5" />
+    
+    <task:scheduled-tasks scheduler="myScheduler">
+        <task:scheduled ref="doSomethingTask" method="doSomething" cron="${cron_expression}"/>
+    </task:scheduled-tasks>
+    ```
+* 配置定时任务执行类
+    ```
+    <bean id="doSomethingTask"
+    	class="com.handpay.test.QuartzTest">
+    </bean>
+    ```
+* 编写任务
+    ```
+    public class QuartzTest {
+        public void doSomething() {
+            log.info("Quartz start ......");
+            log.info("do something ......");
+            log.info("Quartz End ......");
+        }
+    }
+    ```
 
 ## 7 公共服务
 ### 7.1 短信服务
