@@ -355,11 +355,11 @@ Cron表达式由6~7项组成，中间用空格分开。从左到右依次是：�
   ```0 0 0 25 12 ?```：每年12月25日圣诞节的0点0分0秒（午夜）  
   ```0 30 10 * * ? 2016```：2016年每天的10点半
 ### 6.1 Spring TaskScheduler
-* 注解的方法
+* 注解的方法  
     ```
     @Scheduled(cron = "${cron_expression}")
     ```
-* xml配置方法
+* xml配置方法  
     ```
     <task:scheduler id="myScheduler"/>
     
@@ -367,8 +367,8 @@ Cron表达式由6~7项组成，中间用空格分开。从左到右依次是：�
         <task:scheduled ref="doSomethingTask" method="doSomething" cron="${cron_expression}"/>
     </task:scheduled-tasks>
     ```
-* [示例](https://spring.io/guides/gs/scheduling-tasks/#_enable_scheduling)
-  * ```Application```加入```@EnableScheduling```注解
+* [示例](https://spring.io/guides/gs/scheduling-tasks/#_enable_scheduling)  
+  * ```Application```加入```@EnableScheduling```注解  
     ```
     @SpringBootApplication
     @EnableScheduling
@@ -379,7 +379,7 @@ Cron表达式由6~7项组成，中间用空格分开。从左到右依次是：�
         }
     }
     ```
-  * ```ScheduledTasks ```
+  * ```ScheduledTasks ```  
     ```
     @Component
     public class ScheduledTasks {
@@ -400,31 +400,31 @@ Cron表达式由6~7项组成，中间用空格分开。从左到右依次是：�
         	log.info("Job End ......");
         }
     }
-    ```
+    ```  
 ### 6.2 Spring集成quartz  
-* 引入```quartz```依赖
+* 引入```quartz```依赖  
     ```
     <dependency>
         <groupId>quartz</groupId>
         <artifactId>quartz</artifactId>
         <version>1.6.5</version>
     </dependency>
-    ```
-* 配置定时任务执行线程和周期
+    ```  
+* 配置定时任务执行线程和周期  
     ```
     <task:scheduler id="myScheduler" pool-size="5" />
     
     <task:scheduled-tasks scheduler="myScheduler">
         <task:scheduled ref="doSomethingTask" method="doSomething" cron="${cron_expression}"/>
     </task:scheduled-tasks>
-    ```
-* 配置定时任务执行类
+    ```  
+* 配置定时任务执行类  
     ```
     <bean id="doSomethingTask"
     	class="com.handpay.test.QuartzTest">
     </bean>
-    ```
-* 编写任务
+    ```  
+* 编写任务  
     ```
     public class QuartzTest {
         public void doSomething() {
