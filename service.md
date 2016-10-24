@@ -367,8 +367,9 @@ Cron表达式由6~7项组成，中间用空格分开。从左到右依次是：�
         <task:scheduled ref="doSomethingTask" method="doSomething" cron="${cron_expression}"/>
     </task:scheduled-tasks>
     ```
+    
 * [示例](https://spring.io/guides/gs/scheduling-tasks/#_enable_scheduling)  
-  * ```Application```加入```@EnableScheduling```注解  
+  * Application加入```@EnableScheduling```注解  
     ```
     @SpringBootApplication
     @EnableScheduling
@@ -379,7 +380,7 @@ Cron表达式由6~7项组成，中间用空格分开。从左到右依次是：�
         }
     }
     ```
-  * ```ScheduledTasks ```  
+  * ScheduledTasks  
     ```
     @Component
     public class ScheduledTasks {
@@ -405,9 +406,9 @@ Cron表达式由6~7项组成，中间用空格分开。从左到右依次是：�
 * 引入```quartz```依赖  
     ```
     <dependency>
-        <groupId>quartz</groupId>
-        <artifactId>quartz</artifactId>
-        <version>1.6.5</version>
+    	<groupId>quartz</groupId>
+    	<artifactId>quartz</artifactId>
+    	<version>1.6.5</version>
     </dependency>
     ```  
 * 配置定时任务执行线程和周期  
@@ -420,9 +421,7 @@ Cron表达式由6~7项组成，中间用空格分开。从左到右依次是：�
     ```  
 * 配置定时任务执行类  
     ```
-    <bean id="doSomethingTask"
-    	class="com.handpay.test.QuartzTest">
-    </bean>
+    <bean id="doSomethingTask" class="com.handpay.test.QuartzTest"></bean>
     ```  
 * 编写任务  
     ```
