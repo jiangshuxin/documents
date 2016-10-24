@@ -404,13 +404,13 @@ Cron表达式由6~7项组成，中间用空格分开。从左到右依次是：�
     ```  
 ### 6.2 Spring集成quartz  
 * 引入```quartz```依赖  
-    ```
-    <dependency>
-    	<groupId>quartz</groupId>
-    	<artifactId>quartz</artifactId>
-    	<version>1.6.5</version>
-    </dependency>
-    ```  
+	```
+	<dependency>
+	  <groupId>quartz</groupId>
+	  <artifactId>quartz</artifactId>
+	  <version>1.6.5</version>
+	</dependency>
+	```  
 * 配置定时任务执行线程和周期  
     ```
     <task:scheduler id="myScheduler" pool-size="5" />
@@ -426,10 +426,13 @@ Cron表达式由6~7项组成，中间用空格分开。从左到右依次是：�
 * 编写任务  
     ```
     public class QuartzTest {
+    
+        private static final Logger log = LoggerFactory.getLogger(QuartzTest.class);
+        
         public void doSomething() {
-            log.info("Quartz start ......");
-            log.info("do something ......");
-            log.info("Quartz End ......");
+        	log.info("Quartz start ......");
+        	log.info("do something ......");
+        	log.info("Quartz End ......");
         }
     }
     ```
