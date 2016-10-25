@@ -82,6 +82,7 @@
 </dependency> 
 ```  
 #### 1.2.2 配置文件说明  
+详细指导请参考: https://github.com/spring-projects/spring-data-redis  
 ```
 <bean id="redisClusterConfiguration" class="org.springframework.data.redis.connection.RedisClusterConfiguration">
     <property name="maxRedirects" value="${redis.maxRedirects}"></property>
