@@ -3,8 +3,8 @@
 
 ## 1 缓存
 ### 1.1 cache-client
-#### 1. ```pom.xml```中引入```cache-client-1.6.1.jar```  
-#### 2. 在```properties```中添加```redis```服务器配置信息  
+#### 1.1.1 ```pom.xml```中引入```cache-client-1.6.1.jar```  
+#### 1.1.2 在```properties```中添加```redis```服务器配置信息  
 
   ```
   # redis address:ip:port:pwd
@@ -13,7 +13,7 @@
   cache_server_appCode=app123
   ```
   
-#### 3. 编写```spring-redis-cache.xml```文件  
+#### 1.1.3 编写```spring-redis-cache.xml```文件  
 
   ```
   <?xml version="1.0" encoding="UTF-8"?>
@@ -64,20 +64,63 @@
   </beans>
   ```
 
-#### 4. ```spring applicationContext```中引入配置文件
+#### 1.1.4 ```spring applicationContext```中引入配置文件
 
   ```
   <import resource="spring-redis-cache.xml"/>
   ```
 
-#### 5. 利用```cacheExcutor```操作```Redis```
+#### 1.1.5 利用```cacheExcutor```操作```Redis```
 
-### 1.2 Redis 3.0分片
+### 1.2 Redis 3.0集群  
+#### 1.2.1 依赖声明  
+```
+<dependency>
+  <groupId>org.springframework.data</groupId>
+  <artifactId>spring-data-redis</artifactId>
+  <version>1.7.4.RELEASE</version>
+</dependency> 
+```  
+#### 1.2.2 配置文件说明  
+```
+<bean id="redisClusterConfiguration" class="org.springframework.data.redis.connection.RedisClusterConfiguration">
+    <property name="maxRedirects" value="${redis.maxRedirects}"></property>
+    <property name="clusterNodes">
+        <set>
+            <bean class="org.springframework.data.redis.connection.RedisNode">
+                <constructor-arg name="host" value="${redis.host1}"/>
+                <constructor-arg name="port" value="${redis.port1}"/>
+            </bean>
+            <bean class="org.springframework.data.redis.connection.RedisNode">
+                <constructor-arg name="host" value="${redis.host2}"/>
+                <constructor-arg name="port" value="${redis.port2}"/>
+            </bean>
+            <bean class="org.springframework.data.redis.connection.RedisNode">
+                <constructor-arg name="host" value="${redis.host3}"/>
+                <constructor-arg name="port" value="${redis.port3}"/>
+            </bean>
+        </set>
+    </property>
+</bean>
+
+<bean id="jedisConnectionFactory" class="org.springframework.data.redis.connection.jedis.JedisConnectionFactory">
+    <constructor-arg name="clusterConfig" ref="redisClusterConfiguration"/>
+</bean>
+
+<bean id="redisTemplate" class="org.springframework.data.redis.core.RedisTemplate">
+    <property name="connectionFactory" ref="jedisConnectionFactory"/>
+</bean>
+```
+#### 1.2.3 操作
+```
+boolean hasKey = redisTemplate.hasKey("testKey");
+ClusterOperations clusterOps = redisTemplate.opsForCluster();
+```
 
 ## 2 分布式锁  
 公司分布锁基于```zookeeper```开发的，所以需要配置```zookeeper```连接信息；具体步骤如下：  
   
-### 1. ```pom.xml```中引入
+### 2.1 ```pom.xml```中引入
 
   ```
   <dependency>
@@ -87,7 +130,7 @@
   </dependency>
   ```
 
-### 2. 在```properties```中添加```zookeeper```服务器配置信息
+### 2.2 在```properties```中添加```zookeeper```服务器配置信息
 
   ```
   locks.zookeeper.connectServer=zookeeper1:2181,zookeeper2:2182,zookeeper3:2183
@@ -96,7 +139,7 @@
   locks.zookeeper.sessionTimeout = 15000
   ```
   
-### 3. 编写```spring-locks.xml```文件
+### 2.3 编写```spring-locks.xml```文件
 
   ```
   <?xml version="1.0" encoding="UTF-8"?>
@@ -118,7 +161,7 @@
   </beans>
   ```
   
-### 4. 利用```distributedLockFactory```构建相应的```lock```，操作```api```
+### 2.4 利用```distributedLockFactory```构建相应的```lock```，操作```api```
 
 ## 3 搜索
 ### 3.1 Elasticsearch
@@ -152,7 +195,7 @@
 ```
 ### 3.2 SolrCloud
 详细指导请参考: https://github.com/spring-projects/spring-data-solr
-#### 3.3.1 依赖声明
+#### 3.2.1 依赖声明
 ```
 <dependency>
   <groupId>org.springframework.boot</groupId>
@@ -160,7 +203,7 @@
   <version>1.4.1.RELEASE</version>
 </dependency>
 ```
-#### 3.3.2 配置文件说明
+#### 3.2.2 配置文件说明
 ```
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
