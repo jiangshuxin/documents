@@ -122,8 +122,78 @@
 
 ## 3 搜索
 ### 3.1 Elasticsearch
-### 3.2 SolrCloud
+详细指导请参考: https://github.com/spring-projects/spring-data-elasticsearch
+#### 3.1.1 依赖声明
+```
+<dependency>
+  <groupId>org.springframework.data</groupId>
+  <artifactId>spring-data-elasticsearch</artifactId>
+  <version>2.0.2.RELEASE</version>
+</dependency>
+```
+#### 3.1.2 配置文件说明
+```
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:elasticsearch="http://www.springframework.org/schema/data/elasticsearch"
+       xsi:schemaLocation="http://www.springframework.org/schema/data/elasticsearch http://www.springframework.org/schema/data/elasticsearch/spring-elasticsearch.xsd
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
+    <elasticsearch:repositories base-package="com.handpay.xxx"/>
+
+    <elasticsearch:transport-client id="client" cluster-nodes="ip:9300,ip:9300" cluster-name="elasticsearch" />
+
+    <bean name="elasticsearchTemplate" class="org.springframework.data.elasticsearch.core.ElasticsearchTemplate">
+        <constructor-arg name="client" ref="client"/>
+    </bean>
+
+</beans>
+```
+### 3.2 SolrCloud
+详细指导请参考: https://github.com/spring-projects/spring-data-solr
+#### 3.3.1 依赖声明
+```
+<dependency>
+  <groupId>org.springframework.boot</groupId>
+  <artifactId>spring-boot-starter-data-solr</artifactId>
+  <version>1.4.1.RELEASE</version>
+</dependency>
+```
+#### 3.3.2 配置文件说明
+```
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:solr="http://www.springframework.org/schema/data/solr"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd
+    http://www.springframework.org/schema/data/solr
+    http://www.springframework.org/schema/data/solr/spring-solr.xsd">
+
+  <solr:solr-client id="solrClient" url="http://locahost:8983/solr" />
+  
+  <bean id="solrConverter" class="org.springframework.data.solr.core.convert.MappingSolrConverter">
+  	<constructor-arg>
+  		<bean class="org.springframework.data.solr.core.mapping.SimpleSolrMappingContext" />
+  	</constructor-arg>
+  	<property name="customConversions" ref="customConversions" />
+  </bean>
+  
+  <bean id="customConversions" class="org.springframework.data.solr.core.convert.CustomConversions">
+  	<constructor-arg>
+  		<list>
+  			<bean class="com.acme.MyBeanToSolrInputDocumentConverter" />
+  		</list>
+  	</constructor-arg>
+  </bean>
+  
+  <bean id="solrTemplate" class="org.springframework.data.solr.core.SolrTemplate">
+  	<constructor-arg ref="solrClient" />
+  	<property name="solrConverter" ref="solrConverter" />
+  </bean>
+</beans>
+```
 ## 4 消息
 ### 4.1 HornetQ
 #### 4.1.1 依赖声明
@@ -153,7 +223,7 @@
 
 如需指定版本则使用```<version>2.2.5.FINAL</version>```
 
-#### 4.4.2 配置文件说明
+#### 4.1.2 配置文件说明
 由于基于```Spring-JMS```开发,请严格按照**原生ConnectionFactory**->**缓存ConnectionFactory**->**JmsTemplate**三部曲进行配置。
 
 ```
@@ -201,7 +271,91 @@
 
 注意:类```com.handpay.core.coreorder.kernel.delivery.CoreOrderMessageListener```需实现```javax.jms.MessageListener```接口
 ### 4.2 disruptor
+#### 4.2.1 依赖声明
+```
+<dependency>
+    <groupId>com.lmax</groupId>
+    <artifactId>disruptor</artifactId>
+    <version>3.2.0</version>
+</dependency>
+```
+#### 4.2.2 基本用法
 
+1.定义事件
+```
+public class LongEvent
+{
+    private long value;
+
+    public void set(long value)
+    {
+        this.value = value;
+    }
+}
+```
+
+
+2.定义事件工厂
+```
+import com.lmax.disruptor.EventFactory;
+
+public class LongEventFactory implements EventFactory<LongEvent>
+{
+    public LongEvent newInstance()
+    {
+        return new LongEvent();
+    }
+}
+```
+
+3.定义事件处理
+```
+import com.lmax.disruptor.EventHandler;
+
+public class LongEventHandler implements EventHandler<LongEvent>
+{
+    public void onEvent(LongEvent event, long sequence, boolean endOfBatch)
+    {
+        System.out.println("Event: " + event);
+    }
+}
+```
+
+4.启动disruptor
+```
+ExecutorService executor = Executors.newCachedThreadPool();
+
+WaitStrategy BLOCKING_WAIT = new BlockingWaitStrategy();
+WaitStrategy SLEEPING_WAIT = new SleepingWaitStrategy();
+WaitStrategy YIELDING_WAIT = new YieldingWaitStrategy();
+
+EventFactory<LongEvent> eventFactory = new LongEventFactory();
+ExecutorService executor = Executors.newSingleThreadExecutor();
+int ringBufferSize = 1024 * 1024; // RingBuffer 大小，必须是 2 的 N 次方；       
+Disruptor<LongEvent> disruptor = new Disruptor<LongEvent>(eventFactory,
+                ringBufferSize, executor, ProducerType.SINGLE,
+                new YieldingWaitStrategy());
+       
+EventHandler<LongEvent> eventHandler = new LongEventHandler();
+disruptor.handleEventsWith(eventHandler);
+       
+disruptor.start();
+```
+
+5.发布事件
+```
+//发布事件；
+RingBuffer<LongEvent> ringBuffer = disruptor.getRingBuffer();
+long sequence = ringBuffer.next();//请求下一个事件序号；
+   
+try {
+    LongEvent event = ringBuffer.get(sequence);//获取该序号对应的事件对象；
+    long data = getEventData();//获取要通过事件传递的业务数据；    
+    event.set(data);
+} finally{
+    ringBuffer.publish(sequence);//发布事件；
+}
+```
 ## 5 RPC
 ### 5.1 dubbo
 公司的服务发现是基于阿里的```dubbo```，```dubbo```根据需要主要提供下面三种配置信息。
